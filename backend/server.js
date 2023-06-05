@@ -1,5 +1,10 @@
+// require('dotenv').config();
+const fs = require('fs');
+const path = require('path');
+
 const express = require('express');
 const cors = require('cors');
+const multer = require('multer');
 const Crud = require('./models/crudModel');
 const RegisterSchema = require('./models/registerModel');
 const LoginSchema = require('./models/loginModel');
@@ -14,6 +19,19 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
+// Configure multer storage
+// image store korar jonne
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'uploads/'); // Set the directory to save uploaded files
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + '-' + file.originalname); // Set the file name
+  },
+});
+
+const upload = multer({ storage: storage });
+
 //Async await function use kore mongoDB connect
 
 const connectDB = async () => {
@@ -27,6 +45,8 @@ const connectDB = async () => {
 };
 
 // routers
+
+app.use('/uploads', express.static('./uploads'));
 
 // register router
 
@@ -124,22 +144,44 @@ app.get('/:id', async (req, res) => {
 
 // create api
 
-app.post('/crud/create', async (req, res) => {
+app.post('/crud/create', upload.single('image'), async (req, res) => {
+  const imagePath = req.file.path;
+  const { userId, name, email, number } = req.body;
+  const image = req.file ? req.file.filename : null;
+  // console.log(req.body, 11);
+  // console.log(userId);
+  const newCruds = new Crud({
+    userId,
+    name,
+    email,
+    number,
+    image,
+  });
+  console.log(newCruds, 2);
+
+  const findData = await Crud.findOne({
+    email: email,
+    userId: userId,
+  });
+  console.log(findData, 23);
+  const dataAfterAddNewCrud = await RegisterSchema.findById({
+    _id: userId,
+  });
+  // console.log(dataAfterAddNewCrud, 13);
+
   try {
-    const { name, email, number, userId } = req.body;
-    const newCrud = new Crud({
-      userId,
-      name,
-      email,
-      number,
-    });
-    const crudData = await newCrud.save();
-    const dataAfterAddNewCrud = await RegisterSchema.findById({ _id: userId });
-    // console.log(crudData);
-    res.send(dataAfterAddNewCrud);
-    res.status(200).send('Successfull');
+    if (findData == null) {
+      const newInfo = await newCruds.save();
+      console.log(newInfo, 12);
+      console.log('saveeeeeeeeee...');
+
+      res.send(dataAfterAddNewCrud);
+    } else {
+      console.log(findData, 1111);
+    }
   } catch (error) {
     res.json('fail');
+
     res.status(500).json({ error: error.message });
   }
 });
@@ -183,6 +225,7 @@ app.put('/crud/update/:id', async (req, res) => {
     // res.send((message = 'Update Successfully'));
     res.send(updatedData);
   } catch (error) {
+    res.json('fail');
     res.status(500).json({ error: error.message });
   }
 });
@@ -195,6 +238,15 @@ app.delete('/crud/delete/:id', async (req, res) => {
     if (!deleteData) {
       res.status(404).json({ error: 'Data not found' });
     } else {
+      const { image } = deleteData;
+      // image delete korar jonne
+      const imagePath = path.join(__dirname, 'uploads', image);
+
+      // Check if the file exists
+      if (fs.existsSync(imagePath)) {
+        // Delete the file
+        fs.unlinkSync(imagePath);
+      }
       res.send('Successfully deleted');
     }
   } catch (error) {

@@ -4,7 +4,11 @@ import CrudForm from './components/CrudForm';
 import Update from './components/Update';
 import Register from './components/register/Register';
 import Login from './components/login/Login';
+import IndividualDetails from './components/IndividualDetails';
+
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
+
+// import 'bootstrap/dist/css/bootstrap.min.css';
 
 function App() {
   return (
@@ -17,6 +21,7 @@ function App() {
             <Route path="/home/update/:id" element={<Update />} />
             <Route path="/register" element={<Register />} />
             <Route exact path="/home" element={<Home />} />
+            <Route path="/individualDetails" element={<IndividualDetails />} />
             {/* <Redirect to="/login" /> */}
           </Routes>
         </BrowserRouter>

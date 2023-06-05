@@ -17,14 +17,15 @@ const crudSchema = new Schema({
   email: {
     type: String,
     required: [true, 'Please provide your email address.'],
-    unique: true,
-    lowercase: true,
-    validate: [isEmail, 'Please provide a valid email address.'],
+    // unique: true,
+    // lowercase: true,
+    // validate: [isEmail, 'Please provide a valid email address.'],
   },
   number: {
     type: Number,
     required: [true, 'Please provide your name.'],
   },
+  image: String,
 });
 
 const Crud = mongoose.model('Crud', crudSchema);

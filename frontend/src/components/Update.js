@@ -3,7 +3,12 @@ import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
 
 export default function Update() {
+  // const historyToGoBack = useNavigate();
+
   const history = useNavigate();
+  const handleGoBackHome = () => {
+    history(-1); // Go back one step in the history stack
+  };
   const [people, setPeople] = useState({
     userId: '',
     name: '',
@@ -43,22 +48,37 @@ export default function Update() {
       .put(`http://localhost:5000/crud/update/${id}`, people)
       .then((res) => {
         console.log(res);
-        // alert(res.data);
-        alert('Successfull');
+        if (res.data === 'fail') {
+          alert('User already exist, enter new email');
+        } else {
+          // alert(res.data);
+          alert('Successfull');
 
-        // console.log(userId);
-        history('/home', { state: { data: res.data } });
+          // console.log(userId);
+          history('/home', { state: { data: res.data } });
+        }
       });
   };
 
   return (
-    <div>
-      <h1>Update</h1>
-      <div className="my-5">
+    <div style={{ width: '70%' }}>
+      <div className="row my-3">
+        <div className="col-9">
+          <h1>Update</h1>
+        </div>
+        <div className="col-3 my-2">
+          <button className="btn btn-success" onClick={handleGoBackHome}>
+            Go Back
+          </button>
+        </div>
+      </div>
+
+      <div className="my-2">
         {/* {console.log(people)} */}
         <div className="col ">
           <div className="row my-2">
             <input
+              className="form-control"
               type="text"
               name="name"
               value={people.name}
@@ -70,6 +90,7 @@ export default function Update() {
 
           <div className="row my-2">
             <input
+              className="form-control"
               type="text"
               name="email"
               value={people.email}
@@ -82,6 +103,7 @@ export default function Update() {
 
           <div className="row my-2">
             <input
+              className="form-control"
               type="number"
               name="number"
               value={people.number}
@@ -90,6 +112,7 @@ export default function Update() {
               onChange={handleChange}
             ></input>
           </div>
+
           <div className="row my-2">
             <button
               type="button"

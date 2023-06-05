@@ -89,7 +89,7 @@ const Register = () => {
       </div>
 
       <div>or</div>
-      <Link to="/login">Already have an account?</Link>
+      <Link to="/">Already have an account?</Link>
     </div>
   );
 };
